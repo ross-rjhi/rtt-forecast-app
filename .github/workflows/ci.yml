@@ -1,0 +1,50 @@
+# Checks every push: each part's tests, and that each Docker image builds.
+# See the Actions tab on GitHub for results.
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  api:
+    name: API (Node)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci
+      - run: npm test
+
+  web:
+    name: Web (Vue)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci
+      - name: Lint (no auto-fix)
+        run: npx oxlint . && npx eslint .
+      - run: npx vitest run
+      - name: Type-check and build
+        run: npm run build
+
+  docker:
+    name: Docker images build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        part: [api, web]
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build --tag rjhi-dashboard-template-${{ matrix.part }} ${{ matrix.part }}

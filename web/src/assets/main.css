@@ -1,0 +1,129 @@
+@import 'tailwindcss';
+
+/*
+  Colour tokens. Components use them as Tailwind classes (bg-surface, text-ink-secondary,
+  border-line ...) and the chart reads the same values, so light and dark mode are
+  defined once, here. Dark values are chosen for the dark surface, not inverted.
+
+  Palette: MBI (the default). Taken from MBI's palette (#C0A0CE #C59FB8 #CEA4A5 #D5ACA0
+  #DABDAE #E0CFC5), keeping each colour's hue but darkening it until it passes contrast
+  checks: those pastels are 1.5-2.3:1 on white, too light for text, lines or a sidebar.
+  The earlier RJHI blue palette is kept below, switched off; see "RJHI blue palette".
+*/
+/* "static": output every variable even if no Tailwind class uses it - the charts read
+   some (e.g. band-*) directly, and Tailwind would otherwise drop them. */
+@theme static {
+  --color-page: #ffffff;
+  --color-surface: #fcfcfb;
+  --color-ink: #0b0b0b;
+  --color-ink-secondary: #52514e;
+  --color-ink-muted: #898781;
+  --color-line: #e1e0d9;
+  --color-axis: #c3c2b7;
+  /* Mauve, from #C59FB8: 4.6:1 on white */
+  --color-series-1: #9c638a;
+  /* Ordered bands (e.g. under 4 weeks, 4-12, over 12): MBI's peach -> mauve -> lavender, stepping
+     darker towards the most important (2.1:1, 4.6:1, 9.5:1 on white). Checked as an ordinal ramp,
+     including for colour-blind viewers. */
+  --color-band-1: #dba797;
+  --color-band-2: #9c638a;
+  --color-band-3: #5e356e;
+  /* Sidebar: a darker step of the chart mauve, so white text passes contrast (6.8:1; 80% white 5.0:1) */
+  --color-sidebar: #7f496f;
+  /* The RJ Health Informatics mark keeps its own blue, whatever the palette. */
+  --color-brand: #1c5cab;
+  /* Form labels. The sidebar switches this to white; white panels switch it back. */
+  --color-field-label: var(--color-ink-secondary);
+  --color-good: #006300;
+  --color-bad: #d03b3b;
+  --font-sans: 'Figtree Variable', 'Figtree', system-ui, -apple-system, 'Segoe UI', sans-serif; /* bundled: see main.ts */
+}
+
+@layer base {
+  /* Spotlight background (components/SpotlightBackground.vue): dot colour as "r g b" (the chart
+     colour), and a strength that scales both the resting dots and the glow around the pointer. */
+  :root {
+    --spotlight-rgb: 156 99 138;
+    --spotlight-strength: 0.8;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme='light'])) {
+      color-scheme: dark;
+      --color-page: #0d0d0d;
+      --color-surface: #1a1a19;
+      --color-ink: #ffffff;
+      --color-ink-secondary: #c3c2b7;
+      --color-line: #2c2c2a;
+      --color-axis: #383835;
+      --color-series-1: #b081a1;
+      --color-band-1: #754a3e;
+      --color-band-2: #b081a1;
+      --color-band-3: #d8b8e7;
+      --color-sidebar: #673a5a;
+      --color-good: #0ca30c;
+      --color-bad: #e66767;
+      --spotlight-rgb: 255 255 255;
+      --spotlight-strength: 0.5;
+    }
+  }
+  :root[data-theme='dark'] {
+    color-scheme: dark;
+    --color-page: #0d0d0d;
+    --color-surface: #1a1a19;
+    --color-ink: #ffffff;
+    --color-ink-secondary: #c3c2b7;
+    --color-line: #2c2c2a;
+    --color-axis: #383835;
+    --color-series-1: #b081a1;
+    --color-band-1: #754a3e;
+    --color-band-2: #b081a1;
+    --color-band-3: #d8b8e7;
+    --color-sidebar: #673a5a;
+    --color-good: #0ca30c;
+    --color-bad: #e66767;
+    --spotlight-rgb: 255 255 255;
+    --spotlight-strength: 0.5;
+  }
+
+  /*
+    RJHI blue palette: switched off. To bring it back, add data-palette="rjhi-blue" to the
+    <html> tag in index.html. Only the colours that differ from the MBI palette are listed.
+  */
+  :root[data-palette='rjhi-blue'] {
+    --color-series-1: #2a78d6;
+    --color-band-1: #86b6ef;
+    --color-band-2: #2a78d6;
+    --color-band-3: #104281;
+    --color-sidebar: #1c5cab; /* white text 6.6:1; 80% white 4.9:1 */
+    --spotlight-rgb: 42 120 214;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root[data-palette='rjhi-blue']:where(:not([data-theme='light'])) {
+      --color-series-1: #3987e5;
+      --color-band-1: #184f95;
+      --color-band-2: #3987e5;
+      --color-band-3: #9ec5f4;
+      --color-sidebar: #184f95;
+      --spotlight-rgb: 255 255 255;
+    }
+  }
+  :root[data-palette='rjhi-blue'][data-theme='dark'] {
+    --color-series-1: #3987e5;
+    --color-band-1: #184f95;
+    --color-band-2: #3987e5;
+    --color-band-3: #9ec5f4;
+    --color-sidebar: #184f95;
+    --spotlight-rgb: 255 255 255;
+  }
+
+  /* "Zoomed out" look, like 90% browser zoom: Tailwind sizes are in rem, so scaling the root font
+     scales text and spacing together. Chart text follows via useChartTheme's fontScale. */
+  html {
+    font-size: 90%;
+  }
+
+  body {
+    @apply bg-page font-sans text-ink antialiased;
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "name": "rjhi-dashboard-template",
+  "private": true,
+  "type": "module",
+  "description": "RJ Health Informatics dashboard template: Vue 3 + Tailwind front end, Node + Express + Knex API.",
+  "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "seed": "npm --prefix api run seed",
+    "dev": "run-p --print-label dev:api dev:web",
+    "share": "node scripts/share.mjs",
+    "dev:api": "npm --prefix api run dev",
+    "dev:web": "npm --prefix web run dev",
+    "test": "npm --prefix api test && npm --prefix web run test:unit -- --run"
+  },
+  "devDependencies": {
+    "npm-run-all2": "^9.0.3"
+  }
+}

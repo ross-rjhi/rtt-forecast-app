@@ -1,0 +1,30 @@
+# Run the whole app in containers (needs Docker Desktop or Docker Engine):
+#
+#   docker compose run --rm seed    # once: build the example data into ./data
+#   docker compose up --build       # then open http://localhost:8080
+#
+# ./data is shared with the non-Docker setup, so either can build the data for the other.
+services:
+  seed:
+    build: ./api
+    profiles: [seed] # only runs when asked for, with "docker compose run seed"
+    command: ['node', 'scripts/seed.js']
+    user: root # writes to the mounted ./data folder
+    volumes:
+      - ./data:/data
+    environment:
+      DB_PATH: /data/app.sqlite
+
+  api:
+    build: ./api
+    volumes:
+      - ./data:/data:ro # read-only: the API never writes
+    environment:
+      DB_PATH: /data/app.sqlite
+
+  web:
+    build: ./web
+    ports:
+      - '8080:80'
+    depends_on:
+      - api
